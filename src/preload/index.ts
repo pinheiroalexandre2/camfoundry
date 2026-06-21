@@ -10,6 +10,7 @@ const api: OnvifApi = {
   startStream: (id: string) => ipcRenderer.invoke(IpcChannel.StreamStart, id),
   stopStream: (id: string) => ipcRenderer.invoke(IpcChannel.StreamStop, id),
   restartStream: (id: string) => ipcRenderer.invoke(IpcChannel.StreamRestart, id),
+  snapshot: (id: string) => ipcRenderer.invoke(IpcChannel.Snapshot, id),
   onStreamStatus: (cb: (state: StreamState) => void) => {
     const listener = (_e: unknown, state: StreamState): void => cb(state)
     ipcRenderer.on(IpcChannel.StreamStatus, listener)

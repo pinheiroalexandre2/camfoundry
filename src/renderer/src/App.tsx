@@ -46,7 +46,8 @@ export default function App() {
     onPause: (id: string) => window.api.stopStream(id),
     onRestart: (id: string) => window.api.restartStream(id),
     onRemove: handleRemove,
-    onQuality: handleQuality
+    onQuality: handleQuality,
+    onSnapshot: (id: string) => window.api.snapshot(id)
   }
 
   const focused = cameras.find((c) => c.id === focusedId) ?? null

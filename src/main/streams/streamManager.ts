@@ -49,7 +49,8 @@ export class StreamManager {
     const process = spawn(ffmpegPath as string, [
       '-rtsp_transport', 'tcp',
       '-i', rtspUrl,
-      '-an',
+      '-c:a', 'aac',
+      '-ar', '44100',
       '-c:v', 'libx264',
       '-preset', 'veryfast',
       '-tune', 'zerolatency',
@@ -83,6 +84,13 @@ export class StreamManager {
     })
 
     return { cameraId: camera.id, status: 'connecting', url: this.server.urlFor(camera.id) }
+  }
+
+  playlistPath(id: string): string | undefined {
+    const active = this.streams.get(id)
+    if (!active) return undefined
+    const playlist = join(active.dir, 'index.m3u8')
+    return existsSync(playlist) ? playlist : undefined
   }
 
   async stop(id: string): Promise<void> {

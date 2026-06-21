@@ -34,7 +34,8 @@ export const IpcChannel = {
   StreamStart: 'stream:start',
   StreamStop: 'stream:stop',
   StreamRestart: 'stream:restart',
-  StreamStatus: 'stream:status'
+  StreamStatus: 'stream:status',
+  Snapshot: 'stream:snapshot'
 } as const
 
 export interface OnvifApi {
@@ -45,5 +46,6 @@ export interface OnvifApi {
   startStream: (id: string) => Promise<StreamState>
   stopStream: (id: string) => Promise<void>
   restartStream: (id: string) => Promise<StreamState>
+  snapshot: (id: string) => Promise<string | null>
   onStreamStatus: (cb: (state: StreamState) => void) => () => void
 }

@@ -16,6 +16,7 @@ interface Props {
   onRestart: (id: string) => void
   onRemove: (id: string) => void
   onQuality: (camera: Camera, quality: StreamQuality) => void
+  onSnapshot: (id: string) => Promise<string | null>
 }
 
 export function CameraGrid({
@@ -25,7 +26,8 @@ export function CameraGrid({
   onPause,
   onRestart,
   onRemove,
-  onQuality
+  onQuality,
+  onSnapshot
 }: Props) {
   if (cameras.length === 0) {
     return <div className="empty">No cameras yet. Discover or add one to get started.</div>
@@ -46,6 +48,7 @@ export function CameraGrid({
           onRestart={onRestart}
           onRemove={onRemove}
           onQuality={onQuality}
+          onSnapshot={onSnapshot}
         />
       ))}
     </div>
