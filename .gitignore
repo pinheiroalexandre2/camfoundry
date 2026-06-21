@@ -3,3 +3,9 @@ out
 dist
 *.log
 .DS_Store
+.idea
+# AI assistant files
+claude.md
+CLAUDE.md
+AGENTS.md
+.claude/
