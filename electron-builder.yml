@@ -40,6 +40,7 @@ nsis:
 linux:
   icon: resources/icon.png
   category: Video
+  maintainer: Alexandre Pinheiro <info@apinheiro.eu>
   target:
     - AppImage
     - deb

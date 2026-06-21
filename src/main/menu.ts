@@ -3,7 +3,7 @@ import type { MenuItemConstructorOptions } from 'electron'
 import { IpcChannel } from '@shared/types'
 import type { MenuAction } from '@shared/types'
 
-const REPO_URL = 'https://github.com/camfoundry/camfoundry'
+const REPO_URL = 'https://github.com/pinheiroalexandre2/camfoundry'
 
 function send(action: MenuAction): void {
   BrowserWindow.getFocusedWindow()?.webContents.send(IpcChannel.MenuAction, action)

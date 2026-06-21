@@ -4,9 +4,13 @@
   "description": "Desktop app to discover and view local ONVIF and RTSP cameras",
   "author": {
     "name": "Alexandre Pinheiro",
-    "email": "pinheiro.alexandre2@gmail.com"
+    "url": "https://apinheiro.eu"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pinheiroalexandre2/camfoundry.git"
+  },
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
