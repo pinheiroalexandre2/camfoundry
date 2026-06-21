@@ -14,11 +14,13 @@ function parseMatch(data: any): DiscoveredCamera | null {
 
   const xaddr = String(match.XAddrs).split(' ')[0]
   const scopes = String(match.scopes ?? '').split(' ').filter(Boolean)
+  const url = new URL(xaddr)
+  const host = url.port ? `${url.hostname}:${url.port}` : url.hostname
 
   return {
     xaddr,
-    host: new URL(xaddr).hostname,
-    name: scopeValue(scopes, 'name') ?? new URL(xaddr).hostname,
+    host,
+    name: scopeValue(scopes, 'name') ?? host,
     manufacturer: scopeValue(scopes, 'mfr') ?? scopeValue(scopes, 'manufacturer') ?? 'Unknown',
     model: scopeValue(scopes, 'hardware') ?? 'Unknown'
   }
