@@ -1,12 +1,16 @@
 export type StreamQuality = 'hd' | 'sd'
+export type StreamSource = 'onvif' | 'rtsp'
 
 export interface Camera {
   id: string
   name: string
-  host: string
-  username: string
-  password: string
+  // Missing source = 'onvif' for backward compatibility with saved cameras.
+  source?: StreamSource
+  host?: string
+  username?: string
+  password?: string
   quality?: StreamQuality
+  rtspUrl?: string
 }
 
 export interface DiscoveredCamera {

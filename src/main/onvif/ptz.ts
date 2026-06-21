@@ -7,7 +7,7 @@ function connect(camera: Camera): Promise<Cam> {
   const cached = cams.get(camera.id)
   if (cached) return Promise.resolve(cached)
 
-  const [hostname, port] = camera.host.split(':')
+  const [hostname, port] = (camera.host ?? '').split(':')
   return new Promise((resolve, reject) => {
     const cam = new Cam(
       {
@@ -32,6 +32,7 @@ export interface PtzCaps {
 }
 
 export async function ptzCapabilities(camera: Camera): Promise<PtzCaps> {
+  if (camera.source === 'rtsp' || !camera.host) return { pan: false, zoom: false }
   try {
     const cam = await connect(camera)
     if (!cam.activeSource?.ptz) return { pan: false, zoom: false }

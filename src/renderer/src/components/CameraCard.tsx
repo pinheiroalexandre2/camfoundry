@@ -87,10 +87,21 @@ export function CameraCard({
     video.muted = muted
 
     if (Hls.isSupported()) {
-      const hls = new Hls({ liveDurationInfinity: true })
+      const hls = new Hls({
+        liveDurationInfinity: true,
+        lowLatencyMode: true,
+        backBufferLength: 10,
+        liveSyncDurationCount: 2,
+        liveMaxLatencyDurationCount: 6
+      })
       hls.loadSource(state.url)
       hls.attachMedia(video)
       hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}))
+      // If playback drifts too far behind the live edge, jump forward.
+      hls.on(Hls.Events.FRAG_CHANGED, () => {
+        const target = hls.liveSyncPosition
+        if (target != null && target - video.currentTime > 6) video.currentTime = target
+      })
       return () => hls.destroy()
     }
 
@@ -156,15 +167,17 @@ export function CameraCard({
       </div>
 
       <div className="card-actions">
-        <span className="card-host">{camera.host}</span>
+        <span className="card-host">{camera.host ?? 'RTSP'}</span>
         <div className="card-buttons">
-          <button
-            className="icon-btn quality"
-            title="Toggle quality"
-            onClick={() => onQuality(camera, quality === 'hd' ? 'sd' : 'hd')}
-          >
-            {quality.toUpperCase()}
-          </button>
+          {camera.source !== 'rtsp' && (
+            <button
+              className="icon-btn quality"
+              title="Toggle quality"
+              onClick={() => onQuality(camera, quality === 'hd' ? 'sd' : 'hd')}
+            >
+              {quality.toUpperCase()}
+            </button>
+          )}
           <button className="icon-btn" title="Snapshot" onClick={snapshot} disabled={capturing}>
             <CameraIcon size={16} />
           </button>

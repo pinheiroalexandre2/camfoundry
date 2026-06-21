@@ -25,7 +25,10 @@ export default function App() {
   }, [focusedId])
 
   const handleSave = async (camera: Camera): Promise<void> => {
-    const existing = cameras.find((c) => c.host === camera.host)
+    const existing = cameras.find(
+      (c) =>
+        (camera.host && c.host === camera.host) || (camera.rtspUrl && c.rtspUrl === camera.rtspUrl)
+    )
     await save(existing ? { ...camera, id: existing.id } : camera)
     setShowAdd(false)
     if (existing && focusedId === existing.id) await window.api.restartStream(existing.id)

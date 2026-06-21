@@ -1,11 +1,11 @@
 import { spawn, ChildProcess } from 'child_process'
 import { mkdir, rm } from 'fs/promises'
-import { existsSync } from 'fs'
+import { existsSync, readdirSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import ffmpegPath from 'ffmpeg-static'
 import type { Camera, StreamState } from '@shared/types'
-import { resolveRtspUrl } from '../onvif/device'
+import { cameraStreamUrl } from '../onvif/device'
 import { HlsServer } from './hlsServer'
 
 interface ActiveStream {
@@ -32,35 +32,27 @@ export class StreamManager {
 
     let rtspUrl: string
     try {
-      rtspUrl = await resolveRtspUrl(camera)
+      rtspUrl = await cameraStreamUrl(camera)
     } catch (err) {
-      const state: StreamState = {
-        cameraId: camera.id,
-        status: 'error',
-        error: `ONVIF: ${(err as Error).message}`
-      }
-      this.onStatus(state)
-      return state
+      return this.fail(camera.id, (err as Error).message)
     }
 
     const dir = join(this.rootDir, camera.id)
     await mkdir(dir, { recursive: true })
 
+    // Copy the camera's H.264/AAC streams straight through (low CPU, low
+    // latency); only re-encode audio to AAC since HLS/hls.js requires it.
     const process = spawn(ffmpegPath as string, [
+      '-hide_banner', '-loglevel', 'error', '-nostats',
       '-rtsp_transport', 'tcp',
+      '-fflags', 'nobuffer',
       '-i', rtspUrl,
+      '-c:v', 'copy',
       '-c:a', 'aac',
-      '-ar', '44100',
-      '-c:v', 'libx264',
-      '-preset', 'veryfast',
-      '-tune', 'zerolatency',
-      '-profile:v', 'baseline',
-      '-pix_fmt', 'yuv420p',
-      '-g', '30',
       '-f', 'hls',
-      '-hls_time', '2',
-      '-hls_list_size', '4',
-      '-hls_flags', 'delete_segments+omit_endlist',
+      '-hls_time', '1',
+      '-hls_list_size', '3',
+      '-hls_flags', 'delete_segments+omit_endlist+independent_segments',
       join(dir, 'index.m3u8')
     ])
 
@@ -70,20 +62,32 @@ export class StreamManager {
 
     const playlist = join(dir, 'index.m3u8')
     const ready = setInterval(() => {
-      if (existsSync(playlist)) {
+      // Only "live" once the playlist exists and a media segment is written.
+      if (existsSync(playlist) && readdirSync(dir).some((f) => f.endsWith('.ts'))) {
         clearInterval(ready)
         this.onStatus({ cameraId: camera.id, status: 'live', url: this.server.urlFor(camera.id) })
       }
     }, 500)
 
+    process.on('error', (err) => {
+      clearInterval(ready)
+      if (this.streams.has(camera.id)) this.fail(camera.id, err.message)
+    })
+
     process.on('exit', (code) => {
       clearInterval(ready)
       if (this.streams.has(camera.id) && code !== 0) {
-        this.onStatus({ cameraId: camera.id, status: 'error', error: `ffmpeg exited (${code})` })
+        this.fail(camera.id, `ffmpeg exited (${code})`)
       }
     })
 
     return { cameraId: camera.id, status: 'connecting', url: this.server.urlFor(camera.id) }
+  }
+
+  private fail(cameraId: string, error: string): StreamState {
+    const state: StreamState = { cameraId, status: 'error', error }
+    this.onStatus(state)
+    return state
   }
 
   playlistPath(id: string): string | undefined {

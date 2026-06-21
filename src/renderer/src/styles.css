@@ -126,15 +126,31 @@ button.danger:hover {
   font-size: 13px;
 }
 
+.segmented {
+  display: flex;
+  gap: 4px;
+}
+
+.segmented button {
+  flex: 1;
+  background: #2a2e37;
+}
+
+.segmented button.active {
+  background: #3b82f6;
+}
+
 .camera-list {
   margin-bottom: 24px;
 }
 
 .camera-list .list-all {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   width: 100%;
   margin-top: 8px;
   background: #2a2e37;
-  text-align: left;
 }
 
 .toggle {
@@ -214,6 +230,20 @@ button.danger:hover {
 .camera-list li.active {
   background: #232730;
   outline: 1px solid #3b82f6;
+}
+
+.cam-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cam-name svg {
+  flex-shrink: 0;
+  color: #8b919b;
 }
 
 .single {
@@ -334,7 +364,7 @@ button.danger:hover {
 }
 
 .ptz .zoom-out {
-  grid-area: 3 / 4;
+  grid-area: 2 / 4;
 }
 
 .ptz-btn {

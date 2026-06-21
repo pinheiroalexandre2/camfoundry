@@ -1,3 +1,4 @@
+import { LayoutGrid, Link, Wifi } from 'lucide-react'
 import type { Camera, StreamState } from '@shared/types'
 import { StatusBadge } from './StatusBadge'
 
@@ -18,7 +19,14 @@ export function CameraList({ cameras, statuses, focusedId, onSelect }: Props) {
             className={focusedId === camera.id ? 'active' : ''}
             onClick={() => onSelect(camera.id)}
           >
-            <span>{camera.name}</span>
+            <span className="cam-name">
+              {camera.source === 'rtsp' ? (
+                <Link size={13} aria-label="RTSP" />
+              ) : (
+                <Wifi size={13} aria-label="ONVIF" />
+              )}
+              {camera.name}
+            </span>
             <StatusBadge status={statuses[camera.id]?.status ?? 'idle'} />
           </li>
         ))}
@@ -28,7 +36,7 @@ export function CameraList({ cameras, statuses, focusedId, onSelect }: Props) {
         className={`list-all ${focusedId === null ? 'active' : ''}`}
         onClick={() => onSelect(null)}
       >
-        ▦ All cameras
+        <LayoutGrid size={14} /> All cameras
       </button>
     </div>
   )
