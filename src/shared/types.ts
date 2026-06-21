@@ -35,8 +35,16 @@ export const IpcChannel = {
   StreamStop: 'stream:stop',
   StreamRestart: 'stream:restart',
   StreamStatus: 'stream:status',
-  Snapshot: 'stream:snapshot'
+  Snapshot: 'stream:snapshot',
+  PtzCaps: 'ptz:caps',
+  PtzMove: 'ptz:move',
+  PtzStop: 'ptz:stop'
 } as const
+
+export interface PtzCaps {
+  pan: boolean
+  zoom: boolean
+}
 
 export interface OnvifApi {
   listCameras: () => Promise<Camera[]>
@@ -47,5 +55,8 @@ export interface OnvifApi {
   stopStream: (id: string) => Promise<void>
   restartStream: (id: string) => Promise<StreamState>
   snapshot: (id: string) => Promise<string | null>
+  ptzCaps: (id: string) => Promise<PtzCaps>
+  ptzMove: (id: string, x: number, y: number, zoom?: number) => Promise<void>
+  ptzStop: (id: string) => Promise<void>
   onStreamStatus: (cb: (state: StreamState) => void) => () => void
 }

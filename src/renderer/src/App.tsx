@@ -70,7 +70,7 @@ export default function App() {
       <main className="content">
         {focused ? (
           <div className="single">
-            <CameraCard camera={focused} state={statuses[focused.id]} {...cardHandlers} />
+            <CameraCard camera={focused} state={statuses[focused.id]} focused {...cardHandlers} />
           </div>
         ) : (
           <CameraGrid cameras={cameras} statuses={statuses} {...cardHandlers} />

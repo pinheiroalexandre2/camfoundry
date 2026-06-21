@@ -5,6 +5,7 @@ import type { Camera } from '@shared/types'
 import type { CameraStorage } from './storage/storage'
 import type { StreamManager } from './streams/streamManager'
 import { discoverCameras } from './onvif/discovery'
+import { ptzCapabilities, ptzMove, ptzStop } from './onvif/ptz'
 import { captureSnapshot } from './streams/snapshot'
 
 // Chosen once per app session; reset on next launch so we prompt again.
@@ -58,4 +59,16 @@ export function registerIpcHandlers(store: CameraStorage, streams: StreamManager
     shell.showItemInFolder(file)
     return file
   })
+
+  const findCamera = async (id: string): Promise<Camera> => {
+    const camera = (await store.list()).find((c) => c.id === id)
+    if (!camera) throw new Error('Camera not found')
+    return camera
+  }
+
+  ipcMain.handle(IpcChannel.PtzCaps, async (_e, id: string) => ptzCapabilities(await findCamera(id)))
+  ipcMain.handle(IpcChannel.PtzMove, async (_e, id: string, x: number, y: number, zoom: number) =>
+    ptzMove(await findCamera(id), x, y, zoom)
+  )
+  ipcMain.handle(IpcChannel.PtzStop, async (_e, id: string) => ptzStop(await findCamera(id)))
 }

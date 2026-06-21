@@ -20,6 +20,12 @@ declare module 'onvif' {
       options: { panTilt?: boolean; zoom?: boolean },
       callback: (err: Error | null) => void
     ): void
+    getNodes(
+      callback: (
+        err: Error | null,
+        nodes: Record<string, { supportedPTZSpaces?: { continuousZoomVelocitySpace?: unknown } }>
+      ) => void
+    ): void
     getStreamUri(
       options: { protocol?: string; stream?: string; profileToken?: string },
       callback: (err: Error | null, result: { uri: string }) => void
