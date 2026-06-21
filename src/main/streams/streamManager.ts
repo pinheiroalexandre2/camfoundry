@@ -3,9 +3,10 @@ import { mkdir, rm } from 'fs/promises'
 import { existsSync, readdirSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
-import ffmpegPath from 'ffmpeg-static'
 import type { Camera, StreamState } from '@shared/types'
 import { cameraStreamUrl } from '../onvif/device'
+import { resolveFfmpegPath } from './ffmpeg'
+import { logger } from '../logger'
 import { HlsServer } from './hlsServer'
 
 interface ActiveStream {
@@ -42,7 +43,7 @@ export class StreamManager {
 
     // Copy the camera's H.264/AAC streams straight through (low CPU, low
     // latency); only re-encode audio to AAC since HLS/hls.js requires it.
-    const process = spawn(ffmpegPath as string, [
+    const process = spawn(resolveFfmpegPath(), [
       '-hide_banner', '-loglevel', 'error', '-nostats',
       '-rtsp_transport', 'tcp',
       '-fflags', 'nobuffer',
@@ -56,7 +57,7 @@ export class StreamManager {
       join(dir, 'index.m3u8')
     ])
 
-    process.stderr?.on('data', (chunk) => console.error(`[ffmpeg ${camera.name}]`, chunk.toString().trim()))
+    process.stderr?.on('data', (chunk) => logger.error(`[ffmpeg ${camera.name}]`, chunk.toString().trim()))
 
     this.streams.set(camera.id, { process, dir })
 
@@ -101,9 +102,22 @@ export class StreamManager {
     const active = this.streams.get(id)
     if (!active) return
     this.streams.delete(id)
-    active.process.kill('SIGKILL')
+    await this.terminate(active.process)
     await rm(active.dir, { recursive: true, force: true })
     this.onStatus({ cameraId: id, status: 'idle' })
+  }
+
+  // SIGTERM first, force-kill if ffmpeg doesn't exit within 2s.
+  private terminate(proc: ChildProcess): Promise<void> {
+    if (proc.exitCode !== null || proc.signalCode !== null) return Promise.resolve()
+    return new Promise((resolve) => {
+      const force = setTimeout(() => proc.kill('SIGKILL'), 2000)
+      proc.once('exit', () => {
+        clearTimeout(force)
+        resolve()
+      })
+      proc.kill('SIGTERM')
+    })
   }
 
   async restart(camera: Camera): Promise<StreamState> {

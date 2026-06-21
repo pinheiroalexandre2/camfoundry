@@ -1,0 +1,45 @@
+appId: com.camfoundry.app
+productName: CamFoundry
+copyright: Copyright © 2026 Alexandre Pinheiro
+
+directories:
+  output: dist
+  buildResources: resources
+
+files:
+  - out/**
+  - package.json
+
+# The FFmpeg binary can't run from inside the asar archive, so keep it unpacked.
+asarUnpack:
+  - "**/node_modules/ffmpeg-static/**"
+
+mac:
+  category: public.app-category.utilities
+  icon: resources/icon.icns
+  target:
+    - dmg
+    - zip
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: resources/entitlements.mac.plist
+  entitlementsInherit: resources/entitlements.mac.plist
+  # Notarization runs only when APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD /
+  # APPLE_TEAM_ID are present in the environment.
+  notarize: false
+
+win:
+  icon: resources/icon.ico
+  target:
+    - nsis
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+
+linux:
+  icon: resources/icon.png
+  category: Video
+  target:
+    - AppImage
+    - deb

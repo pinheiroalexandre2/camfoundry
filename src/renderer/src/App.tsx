@@ -15,6 +15,19 @@ export default function App() {
   const camerasRef = useRef(cameras)
   camerasRef.current = cameras
 
+  const focusedIdRef = useRef(focusedId)
+  focusedIdRef.current = focusedId
+
+  // Native menu items dispatch here so they reuse the same in-app actions.
+  useEffect(() => {
+    return window.api.onMenuAction((action) => {
+      if (action === 'add-camera') setShowAdd(true)
+      else if (action === 'snapshot' && focusedIdRef.current) {
+        window.api.snapshot(focusedIdRef.current)
+      }
+    })
+  }, [])
+
   // Single view keeps only the focused camera streaming; everything else stops.
   useEffect(() => {
     if (focusedId === null) return

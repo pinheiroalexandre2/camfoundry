@@ -1,4 +1,4 @@
-.PHONY: install dev build start typecheck clean
+.PHONY: install dev build start typecheck pack dist dist-mac dist-win dist-linux clean
 
 install:
 	npm install
@@ -15,5 +15,20 @@ start: build
 typecheck:
 	npm run typecheck
 
+pack:
+	npm run pack
+
+dist:
+	npm run dist
+
+dist-mac:
+	npm run dist:mac
+
+dist-win:
+	npm run dist:win
+
+dist-linux:
+	npm run dist:linux
+
 clean:
-	rm -rf out node_modules
+	rm -rf out dist node_modules

@@ -66,3 +66,7 @@ export async function ptzStop(camera: Camera): Promise<void> {
     cam.stop({ panTilt: true, zoom: true }, () => resolve())
   })
 }
+
+export function disposePtz(): void {
+  cams.clear()
+}

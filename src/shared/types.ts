@@ -42,8 +42,11 @@ export const IpcChannel = {
   Snapshot: 'stream:snapshot',
   PtzCaps: 'ptz:caps',
   PtzMove: 'ptz:move',
-  PtzStop: 'ptz:stop'
+  PtzStop: 'ptz:stop',
+  MenuAction: 'menu:action'
 } as const
+
+export type MenuAction = 'add-camera' | 'snapshot'
 
 export interface PtzCaps {
   pan: boolean
@@ -63,4 +66,5 @@ export interface OnvifApi {
   ptzMove: (id: string, x: number, y: number, zoom?: number) => Promise<void>
   ptzStop: (id: string) => Promise<void>
   onStreamStatus: (cb: (state: StreamState) => void) => () => void
+  onMenuAction: (cb: (action: MenuAction) => void) => () => void
 }
