@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { DiscoveredCamera } from '@shared/types'
 
 interface Props {
@@ -19,10 +19,14 @@ export function DiscoveryPanel({ onPick }: Props) {
     }
   }
 
+  useEffect(() => {
+    discover()
+  }, [])
+
   return (
     <div className="panel">
       <button onClick={discover} disabled={scanning}>
-        {scanning ? 'Scanning…' : 'Discover Cameras'}
+        {scanning ? 'Scanning…' : 'Rescan'}
       </button>
 
       <ul className="results">

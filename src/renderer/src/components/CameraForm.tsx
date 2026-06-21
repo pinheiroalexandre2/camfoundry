@@ -31,7 +31,7 @@ export function CameraForm({ prefill, onSave }: Props) {
 
   return (
     <form className="form" onSubmit={submit}>
-      <h2>Add Camera</h2>
+      <h2>Or add manually</h2>
       <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
       <input
         placeholder="Host (192.168.1.10 or 192.168.1.10:8000)"

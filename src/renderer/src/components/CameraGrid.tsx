@@ -1,4 +1,4 @@
-import type { Camera, StreamState } from '@shared/types'
+import type { Camera, StreamQuality, StreamState } from '@shared/types'
 import { CameraCard } from './CameraCard'
 
 function columnsFor(count: number): number {
@@ -15,9 +15,18 @@ interface Props {
   onPause: (id: string) => void
   onRestart: (id: string) => void
   onRemove: (id: string) => void
+  onQuality: (camera: Camera, quality: StreamQuality) => void
 }
 
-export function CameraGrid({ cameras, statuses, onPlay, onPause, onRestart, onRemove }: Props) {
+export function CameraGrid({
+  cameras,
+  statuses,
+  onPlay,
+  onPause,
+  onRestart,
+  onRemove,
+  onQuality
+}: Props) {
   if (cameras.length === 0) {
     return <div className="empty">No cameras yet. Discover or add one to get started.</div>
   }
@@ -36,6 +45,7 @@ export function CameraGrid({ cameras, statuses, onPlay, onPause, onRestart, onRe
           onPause={onPause}
           onRestart={onRestart}
           onRemove={onRemove}
+          onQuality={onQuality}
         />
       ))}
     </div>

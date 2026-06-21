@@ -10,6 +10,7 @@ declare module 'onvif' {
 
   export class Cam {
     constructor(options: CamOptions, callback: (err: Error | null) => void)
+    profiles: { $: { token: string }; name?: string }[]
     getStreamUri(
       options: { protocol?: string; stream?: string; profileToken?: string },
       callback: (err: Error | null, result: { uri: string }) => void

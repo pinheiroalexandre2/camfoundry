@@ -24,7 +24,10 @@ export function resolveRtspUrl(camera: Camera): Promise<string> {
       (connectErr) => {
         if (connectErr) return reject(connectErr)
 
-        cam.getStreamUri({ protocol: 'RTSP' }, (uriErr, result) => {
+        const profiles = cam.profiles ?? []
+        const profile = camera.quality === 'sd' ? profiles[profiles.length - 1] : profiles[0]
+
+        cam.getStreamUri({ protocol: 'RTSP', profileToken: profile?.$?.token }, (uriErr, result) => {
           if (uriErr || !result?.uri) {
             return reject(uriErr ?? new Error('No stream URI returned'))
           }

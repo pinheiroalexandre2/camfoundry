@@ -32,7 +32,7 @@ export class StreamManager {
 
     let rtspUrl: string
     try {
-      rtspUrl = camera.rtspUrl ?? (await resolveRtspUrl(camera))
+      rtspUrl = await resolveRtspUrl(camera)
     } catch (err) {
       const state: StreamState = {
         cameraId: camera.id,

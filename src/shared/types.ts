@@ -1,10 +1,12 @@
+export type StreamQuality = 'hd' | 'sd'
+
 export interface Camera {
   id: string
   name: string
   host: string
   username: string
   password: string
-  rtspUrl?: string
+  quality?: StreamQuality
 }
 
 export interface DiscoveredCamera {
