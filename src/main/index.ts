@@ -17,6 +17,7 @@ const streams = new StreamManager(broadcastStatus)
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
+    title: 'CamFoundry',
     width: 1200,
     height: 800,
     show: false,
@@ -38,6 +39,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(async () => {
+  app.setName('CamFoundry')
   await streams.init()
   registerIpcHandlers(store, streams)
   createWindow()

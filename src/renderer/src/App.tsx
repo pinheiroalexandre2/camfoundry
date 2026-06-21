@@ -58,7 +58,7 @@ export default function App() {
   return (
     <div className="app">
       <aside className="sidebar">
-        <h1>ONVIF Viewer</h1>
+        <h1>CamFoundry</h1>
         <CameraList
           cameras={cameras}
           statuses={statuses}

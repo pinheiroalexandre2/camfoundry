@@ -1,7 +1,7 @@
 {
-  "name": "onvif-viewer",
+  "name": "camfoundry",
   "version": "0.1.0",
-  "description": "Lightweight desktop app to discover and view local ONVIF cameras",
+  "description": "Desktop app to discover and view local ONVIF and RTSP cameras",
   "author": "",
   "license": "MIT",
   "main": "./out/main/index.js",

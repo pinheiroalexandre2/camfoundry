@@ -16,7 +16,7 @@ async function resolveSnapshotDir(): Promise<string | null> {
 
   const options = {
     title: 'Choose where to save snapshots',
-    defaultPath: join(app.getPath('pictures'), 'ONVIF Viewer'),
+    defaultPath: join(app.getPath('pictures'), 'CamFoundry'),
     properties: ['openDirectory' as const, 'createDirectory' as const]
   }
   const window = BrowserWindow.getFocusedWindow()

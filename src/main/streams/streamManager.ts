@@ -14,7 +14,7 @@ interface ActiveStream {
 }
 
 export class StreamManager {
-  private rootDir = join(tmpdir(), 'onvif-viewer-streams')
+  private rootDir = join(tmpdir(), 'camfoundry-streams')
   private server = new HlsServer(this.rootDir)
   private streams = new Map<string, ActiveStream>()
 
