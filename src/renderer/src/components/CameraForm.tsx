@@ -3,17 +3,18 @@ import type { Camera, DiscoveredCamera, StreamSource } from '@shared/types'
 
 interface Props {
   prefill: DiscoveredCamera | null
+  camera?: Camera
   onSave: (camera: Camera) => Promise<void>
 }
 
-export function CameraForm({ prefill, onSave }: Props) {
-  const [source, setSource] = useState<StreamSource>('onvif')
-  const [name, setName] = useState('')
-  const [host, setHost] = useState('')
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [rtspUrl, setRtspUrl] = useState('')
-  const [useSecure, setUseSecure] = useState(false)
+export function CameraForm({ prefill, camera, onSave }: Props) {
+  const [source, setSource] = useState<StreamSource>(camera?.source ?? 'onvif')
+  const [name, setName] = useState(camera?.name ?? '')
+  const [host, setHost] = useState(camera?.host ?? '')
+  const [username, setUsername] = useState(camera?.username ?? '')
+  const [password, setPassword] = useState(camera?.password ?? '')
+  const [rtspUrl, setRtspUrl] = useState(camera?.rtspUrl ?? '')
+  const [useSecure, setUseSecure] = useState(camera?.useSecure ?? false)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -37,16 +38,17 @@ export function CameraForm({ prefill, onSave }: Props) {
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
     if (!name) return
-    const camera: Camera =
+    const id = camera?.id ?? crypto.randomUUID()
+    const next: Camera =
       source === 'rtsp'
-        ? { id: crypto.randomUUID(), name, source, rtspUrl }
-        : { id: crypto.randomUUID(), name, source, host, useSecure, username, password }
+        ? { ...camera, id, name, source, rtspUrl }
+        : { ...camera, id, name, source, host, useSecure, username, password }
     if (source === 'rtsp' ? !rtspUrl : !host) return
 
     setSaving(true)
     setError(null)
     try {
-      await onSave(camera)
+      await onSave(next)
       reset()
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
@@ -57,7 +59,7 @@ export function CameraForm({ prefill, onSave }: Props) {
 
   return (
     <form className="form" onSubmit={submit}>
-      <h2>Or add manually</h2>
+      <h2>{camera ? 'Camera details' : 'Or add manually'}</h2>
 
       <div className="segmented">
         <button

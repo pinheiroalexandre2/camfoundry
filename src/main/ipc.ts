@@ -5,7 +5,7 @@ import type { Camera } from '@shared/types'
 import type { CameraStorage } from './storage/storage'
 import type { StreamManager } from './streams/streamManager'
 import { discoverCameras } from './onvif/discovery'
-import { ptzCapabilities, ptzMove, ptzStop } from './onvif/ptz'
+import { forgetPtz, ptzCapabilities, ptzMove, ptzStop } from './onvif/ptz'
 import { captureSnapshot } from './streams/snapshot'
 import { debugEntries } from './debugLog'
 
@@ -32,7 +32,10 @@ async function resolveSnapshotDir(): Promise<string | null> {
 
 export function registerIpcHandlers(store: CameraStorage, streams: StreamManager): void {
   ipcMain.handle(IpcChannel.CamerasList, () => store.list())
-  ipcMain.handle(IpcChannel.CamerasSave, (_e, camera: Camera) => store.save(camera))
+  ipcMain.handle(IpcChannel.CamerasSave, (_e, camera: Camera) => {
+    forgetPtz(camera.id)
+    return store.save(camera)
+  })
   ipcMain.handle(IpcChannel.CamerasDelete, (_e, id: string) => store.delete(id))
 
   ipcMain.handle(IpcChannel.Discover, () => discoverCameras())

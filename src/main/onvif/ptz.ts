@@ -58,6 +58,11 @@ export async function ptzStop(camera: Camera): Promise<void> {
   })
 }
 
+// Drop the cached connection so edited host/credentials take effect.
+export function forgetPtz(id: string): void {
+  cams.delete(id)
+}
+
 export function disposePtz(): void {
   cams.clear()
 }

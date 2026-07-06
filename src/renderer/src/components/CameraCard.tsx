@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import Hls from 'hls.js'
-import { Camera as CameraIcon, Pause, Play, RotateCw, Trash2, Volume2, VolumeX } from 'lucide-react'
+import { Camera as CameraIcon, Pause, Pencil, Play, RotateCw, Trash2, Volume2, VolumeX } from 'lucide-react'
 import type { Camera, PtzCaps, StreamQuality, StreamState } from '@shared/types'
 import { StatusBadge } from './StatusBadge'
 import { PtzControls } from './PtzControls'
@@ -13,6 +13,7 @@ interface Props {
   onPause: (id: string) => void
   onRestart: (id: string) => void
   onRemove: (id: string) => void
+  onEdit: (camera: Camera) => void
   onQuality: (camera: Camera, quality: StreamQuality) => void
   onSnapshot: (id: string) => Promise<string | null>
 }
@@ -25,6 +26,7 @@ export function CameraCard({
   onPause,
   onRestart,
   onRemove,
+  onEdit,
   onQuality,
   onSnapshot
 }: Props) {
@@ -202,6 +204,9 @@ export function CameraCard({
               <Play size={16} />
             </button>
           )}
+          <button className="icon-btn" title="Edit" onClick={() => onEdit(camera)}>
+            <Pencil size={16} />
+          </button>
           <button
             className="icon-btn danger"
             title="Remove"
