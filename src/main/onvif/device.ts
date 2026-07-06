@@ -22,8 +22,10 @@ export async function cameraStreamUrl(camera: Camera): Promise<string> {
 
 export function connectCam(camera: Camera): Promise<Cam> {
   const [hostname, port] = (camera.host ?? '').split(':')
-  const resolvedPort = port ? Number(port) : 80
-  debugLog('onvif', `Connecting to ${hostname}:${resolvedPort}`)
+  const secure = !!camera.useSecure
+  const resolvedPort = port ? Number(port) : secure ? 443 : 80
+  const target = `${secure ? 'https' : 'http'}://${hostname}:${resolvedPort}`
+  debugLog('onvif', `Connecting to ${target}`)
 
   return new Promise((resolve, reject) => {
     const cam = new Cam(
@@ -32,15 +34,18 @@ export function connectCam(camera: Camera): Promise<Cam> {
         port: resolvedPort,
         username: camera.username,
         password: camera.password,
+        useSecure: secure,
+        // Cameras almost universally ship self-signed certificates.
+        secureOpts: secure ? { rejectUnauthorized: false } : undefined,
         timeout: 10000
       },
       (err) => {
         if (err) {
-          debugLog('onvif', `Connect to ${hostname}:${resolvedPort} failed`, String(err))
+          debugLog('onvif', `Connect to ${target} failed`, String(err))
           return reject(err)
         }
         const profiles = (cam.profiles ?? []).map((p) => p.name ?? p.$?.token).join(', ')
-        debugLog('onvif', `Connected to ${hostname}:${resolvedPort}`, `Profiles: ${profiles || 'none'}`)
+        debugLog('onvif', `Connected to ${target}`, `Profiles: ${profiles || 'none'}`)
         resolve(cam)
       }
     )

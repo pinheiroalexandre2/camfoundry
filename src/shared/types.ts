@@ -7,6 +7,7 @@ export interface Camera {
   // Missing source = 'onvif' for backward compatibility with saved cameras.
   source?: StreamSource
   host?: string
+  useSecure?: boolean
   username?: string
   password?: string
   quality?: StreamQuality

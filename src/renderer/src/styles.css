@@ -444,6 +444,19 @@ button.danger:hover {
   color: #fca5a5;
 }
 
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #8b919b;
+  cursor: pointer;
+}
+
+.checkbox input {
+  margin: 0;
+}
+
 .form-error {
   color: #fca5a5;
   font-size: 12px;

@@ -6,6 +6,8 @@ declare module 'onvif' {
     port?: number
     path?: string
     timeout?: number
+    useSecure?: boolean
+    secureOpts?: { rejectUnauthorized?: boolean }
   }
 
   export class Cam {

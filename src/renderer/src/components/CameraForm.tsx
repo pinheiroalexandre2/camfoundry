@@ -13,6 +13,7 @@ export function CameraForm({ prefill, onSave }: Props) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [rtspUrl, setRtspUrl] = useState('')
+  const [useSecure, setUseSecure] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -30,6 +31,7 @@ export function CameraForm({ prefill, onSave }: Props) {
     setUsername('')
     setPassword('')
     setRtspUrl('')
+    setUseSecure(false)
   }
 
   const submit = async (e: React.FormEvent): Promise<void> => {
@@ -38,7 +40,7 @@ export function CameraForm({ prefill, onSave }: Props) {
     const camera: Camera =
       source === 'rtsp'
         ? { id: crypto.randomUUID(), name, source, rtspUrl }
-        : { id: crypto.randomUUID(), name, source, host, username, password }
+        : { id: crypto.randomUUID(), name, source, host, useSecure, username, password }
     if (source === 'rtsp' ? !rtspUrl : !host) return
 
     setSaving(true)
@@ -100,6 +102,14 @@ export function CameraForm({ prefill, onSave }: Props) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <label className="checkbox">
+            <input
+              type="checkbox"
+              checked={useSecure}
+              onChange={(e) => setUseSecure(e.target.checked)}
+            />
+            Use HTTPS (defaults to port 443)
+          </label>
         </>
       )}
 
