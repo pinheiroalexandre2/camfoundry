@@ -8,12 +8,16 @@ interface Props {
 export function DiscoveryPanel({ onPick }: Props) {
   const [results, setResults] = useState<DiscoveredCamera[]>([])
   const [scanning, setScanning] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const discover = async (): Promise<void> => {
     setScanning(true)
     setResults([])
+    setError(null)
     try {
       setResults(await window.api.discover())
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
     } finally {
       setScanning(false)
     }
@@ -46,7 +50,8 @@ export function DiscoveryPanel({ onPick }: Props) {
             <button onClick={() => onPick(camera)}>Add</button>
           </li>
         ))}
-        {!scanning && results.length === 0 && <li className="muted">No results yet.</li>}
+        {error && <li className="form-error">{error}</li>}
+        {!scanning && !error && results.length === 0 && <li className="muted">No results yet.</li>}
       </ul>
     </div>
   )

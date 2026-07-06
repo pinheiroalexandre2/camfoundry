@@ -3,7 +3,7 @@ import type { Camera, DiscoveredCamera, StreamSource } from '@shared/types'
 
 interface Props {
   prefill: DiscoveredCamera | null
-  onSave: (camera: Camera) => void
+  onSave: (camera: Camera) => Promise<void>
 }
 
 export function CameraForm({ prefill, onSave }: Props) {
@@ -13,6 +13,8 @@ export function CameraForm({ prefill, onSave }: Props) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [rtspUrl, setRtspUrl] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (prefill) {
@@ -30,17 +32,25 @@ export function CameraForm({ prefill, onSave }: Props) {
     setRtspUrl('')
   }
 
-  const submit = (e: React.FormEvent): void => {
+  const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
     if (!name) return
-    if (source === 'rtsp') {
-      if (!rtspUrl) return
-      onSave({ id: crypto.randomUUID(), name, source, rtspUrl })
-    } else {
-      if (!host) return
-      onSave({ id: crypto.randomUUID(), name, source, host, username, password })
+    const camera: Camera =
+      source === 'rtsp'
+        ? { id: crypto.randomUUID(), name, source, rtspUrl }
+        : { id: crypto.randomUUID(), name, source, host, username, password }
+    if (source === 'rtsp' ? !rtspUrl : !host) return
+
+    setSaving(true)
+    setError(null)
+    try {
+      await onSave(camera)
+      reset()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setSaving(false)
     }
-    reset()
   }
 
   return (
@@ -93,7 +103,11 @@ export function CameraForm({ prefill, onSave }: Props) {
         </>
       )}
 
-      <button type="submit">Save</button>
+      {error && <div className="form-error">{error}</div>}
+
+      <button type="submit" disabled={saving}>
+        {saving ? 'Saving…' : 'Save'}
+      </button>
     </form>
   )
 }

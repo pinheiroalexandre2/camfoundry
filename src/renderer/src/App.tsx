@@ -6,12 +6,14 @@ import { CameraGrid } from './components/CameraGrid'
 import { CameraList } from './components/CameraList'
 import { CameraCard } from './components/CameraCard'
 import { AddCameraModal } from './components/AddCameraModal'
+import { DebugPanel } from './components/DebugPanel'
 
 export default function App() {
   const { cameras, save, remove } = useCameras()
   const statuses = useStreamStatuses()
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const [showAdd, setShowAdd] = useState(false)
+  const [showDebug, setShowDebug] = useState(false)
   const camerasRef = useRef(cameras)
   camerasRef.current = cameras
 
@@ -22,6 +24,7 @@ export default function App() {
   useEffect(() => {
     return window.api.onMenuAction((action) => {
       if (action === 'add-camera') setShowAdd(true)
+      else if (action === 'debug-log') setShowDebug((prev) => !prev)
       else if (action === 'snapshot' && focusedIdRef.current) {
         window.api.snapshot(focusedIdRef.current)
       }
@@ -37,6 +40,7 @@ export default function App() {
     }
   }, [focusedId])
 
+  // Save errors propagate to the form so the modal stays open and shows them.
   const handleSave = async (camera: Camera): Promise<void> => {
     const existing = cameras.find(
       (c) =>
@@ -70,28 +74,32 @@ export default function App() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
-        <h1>CamFoundry</h1>
-        <CameraList
-          cameras={cameras}
-          statuses={statuses}
-          focusedId={focusedId}
-          onSelect={setFocusedId}
-        />
-        <button className="toggle" onClick={() => setShowAdd(true)}>
-          ＋ Add camera
-        </button>
-      </aside>
+      <div className="app-main">
+        <aside className="sidebar">
+          <h1>CamFoundry</h1>
+          <CameraList
+            cameras={cameras}
+            statuses={statuses}
+            focusedId={focusedId}
+            onSelect={setFocusedId}
+          />
+          <button className="toggle" onClick={() => setShowAdd(true)}>
+            ＋ Add camera
+          </button>
+        </aside>
 
-      <main className="content">
-        {focused ? (
-          <div className="single">
-            <CameraCard camera={focused} state={statuses[focused.id]} focused {...cardHandlers} />
-          </div>
-        ) : (
-          <CameraGrid cameras={cameras} statuses={statuses} {...cardHandlers} />
-        )}
-      </main>
+        <main className="content">
+          {focused ? (
+            <div className="single">
+              <CameraCard camera={focused} state={statuses[focused.id]} focused {...cardHandlers} />
+            </div>
+          ) : (
+            <CameraGrid cameras={cameras} statuses={statuses} {...cardHandlers} />
+          )}
+        </main>
+      </div>
+
+      {showDebug && <DebugPanel onClose={() => setShowDebug(false)} />}
 
       {showAdd && <AddCameraModal onClose={() => setShowAdd(false)} onSave={handleSave} />}
     </div>

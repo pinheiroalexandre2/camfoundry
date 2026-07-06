@@ -5,7 +5,7 @@ import { CameraForm } from './CameraForm'
 
 interface Props {
   onClose: () => void
-  onSave: (camera: Camera) => void
+  onSave: (camera: Camera) => Promise<void>
 }
 
 export function AddCameraModal({ onClose, onSave }: Props) {

@@ -2,12 +2,12 @@ import os from 'os'
 import { URL } from 'url'
 import { Discovery } from 'onvif'
 import type { DiscoveredCamera } from '@shared/types'
-import { logger } from '../logger'
+import { debugLog } from '../debugLog'
 
 // The Discovery emitter fires 'error' for any non-ONVIF reply to the multicast
 // probe; without a listener Node turns that into an uncaught exception.
 Discovery.on('error', (err) => {
-  logger.info(`Discovery response error: ${err}`)
+  debugLog('discovery', 'Response error', String(err))
 })
 
 function scopeValue(scopes: string[], key: string): string | undefined {
@@ -41,11 +41,14 @@ function externalIPv4Interfaces(): string[] {
 }
 
 function probe(timeout: number, device?: string): Promise<unknown[]> {
+  const where = device ?? 'default interface'
+  debugLog('discovery', `Probing ${where}`)
   return new Promise((resolve) => {
     Discovery.probe({ resolve: false, timeout, device }, (err, results) => {
       // The lib reports errors and results together; junk replies from
       // non-ONVIF devices should not discard valid matches.
-      if (err) logger.info(`Discovery probe error${device ? ` on ${device}` : ''}: ${err}`)
+      if (err) debugLog('discovery', `Probe error on ${where}`, String(err))
+      debugLog('discovery', `Probe on ${where} got ${results?.length ?? 0} matches`)
       resolve(results ?? [])
     })
   })
@@ -63,7 +66,11 @@ export async function discoverCameras(timeout = 5000): Promise<DiscoveredCamera[
   const cameras = new Map<string, DiscoveredCamera>()
   for (const item of results) {
     const camera = parseMatch(item)
-    if (camera) cameras.set(camera.host, camera)
+    if (camera) {
+      debugLog('discovery', `Match ${camera.host}`, JSON.stringify(item, null, 2))
+      cameras.set(camera.host, camera)
+    }
   }
+  debugLog('discovery', `Scan finished: ${cameras.size} camera(s)`)
   return [...cameras.values()]
 }

@@ -1,6 +1,7 @@
 import { URL } from 'url'
 import { Cam } from 'onvif'
 import type { Camera } from '@shared/types'
+import { debugLog } from '../debugLog'
 
 function withCredentials(uri: string, username = '', password = ''): string {
   const url = new URL(uri)
@@ -19,31 +20,46 @@ export async function cameraStreamUrl(camera: Camera): Promise<string> {
   return resolveRtspUrl(camera)
 }
 
-export function resolveRtspUrl(camera: Camera): Promise<string> {
+export function connectCam(camera: Camera): Promise<Cam> {
   const [hostname, port] = (camera.host ?? '').split(':')
+  const resolvedPort = port ? Number(port) : 80
+  debugLog('onvif', `Connecting to ${hostname}:${resolvedPort}`)
 
   return new Promise((resolve, reject) => {
     const cam = new Cam(
       {
         hostname,
-        port: port ? Number(port) : 80,
+        port: resolvedPort,
         username: camera.username,
         password: camera.password,
         timeout: 10000
       },
-      (connectErr) => {
-        if (connectErr) return reject(connectErr)
-
-        const profiles = cam.profiles ?? []
-        const profile = camera.quality === 'sd' ? profiles[profiles.length - 1] : profiles[0]
-
-        cam.getStreamUri({ protocol: 'RTSP', profileToken: profile?.$?.token }, (uriErr, result) => {
-          if (uriErr || !result?.uri) {
-            return reject(uriErr ?? new Error('No stream URI returned'))
-          }
-          resolve(withCredentials(result.uri, camera.username, camera.password))
-        })
+      (err) => {
+        if (err) {
+          debugLog('onvif', `Connect to ${hostname}:${resolvedPort} failed`, String(err))
+          return reject(err)
+        }
+        const profiles = (cam.profiles ?? []).map((p) => p.name ?? p.$?.token).join(', ')
+        debugLog('onvif', `Connected to ${hostname}:${resolvedPort}`, `Profiles: ${profiles || 'none'}`)
+        resolve(cam)
       }
     )
+  })
+}
+
+export async function resolveRtspUrl(camera: Camera): Promise<string> {
+  const cam = await connectCam(camera)
+  const profiles = cam.profiles ?? []
+  const profile = camera.quality === 'sd' ? profiles[profiles.length - 1] : profiles[0]
+
+  return new Promise((resolve, reject) => {
+    cam.getStreamUri({ protocol: 'RTSP', profileToken: profile?.$?.token }, (uriErr, result) => {
+      if (uriErr || !result?.uri) {
+        debugLog('onvif', `GetStreamUri failed for ${camera.host}`, String(uriErr ?? 'No URI returned'))
+        return reject(uriErr ?? new Error('No stream URI returned'))
+      }
+      debugLog('onvif', `GetStreamUri for ${camera.host}`, result.uri)
+      resolve(withCredentials(result.uri, camera.username, camera.password))
+    })
   })
 }

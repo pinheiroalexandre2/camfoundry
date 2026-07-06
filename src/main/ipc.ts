@@ -7,6 +7,7 @@ import type { StreamManager } from './streams/streamManager'
 import { discoverCameras } from './onvif/discovery'
 import { ptzCapabilities, ptzMove, ptzStop } from './onvif/ptz'
 import { captureSnapshot } from './streams/snapshot'
+import { debugEntries } from './debugLog'
 
 // Chosen once per app session; reset on next launch so we prompt again.
 let sessionSnapshotDir: string | null = null
@@ -71,4 +72,6 @@ export function registerIpcHandlers(store: CameraStorage, streams: StreamManager
     ptzMove(await findCamera(id), x, y, zoom)
   )
   ipcMain.handle(IpcChannel.PtzStop, async (_e, id: string) => ptzStop(await findCamera(id)))
+
+  ipcMain.handle(IpcChannel.DebugList, () => debugEntries())
 }

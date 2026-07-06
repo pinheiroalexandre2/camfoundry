@@ -1,29 +1,17 @@
 import { Cam } from 'onvif'
 import type { Camera } from '@shared/types'
+import { debugLog } from '../debugLog'
+import { connectCam } from './device'
 
 const cams = new Map<string, Cam>()
 
-function connect(camera: Camera): Promise<Cam> {
+async function connect(camera: Camera): Promise<Cam> {
   const cached = cams.get(camera.id)
-  if (cached) return Promise.resolve(cached)
+  if (cached) return cached
 
-  const [hostname, port] = (camera.host ?? '').split(':')
-  return new Promise((resolve, reject) => {
-    const cam = new Cam(
-      {
-        hostname,
-        port: port ? Number(port) : 80,
-        username: camera.username,
-        password: camera.password,
-        timeout: 10000
-      },
-      (err) => {
-        if (err) return reject(err)
-        cams.set(camera.id, cam)
-        resolve(cam)
-      }
-    )
-  })
+  const cam = await connectCam(camera)
+  cams.set(camera.id, cam)
+  return cam
 }
 
 export interface PtzCaps {
@@ -40,11 +28,14 @@ export async function ptzCapabilities(camera: Camera): Promise<PtzCaps> {
     const nodes = await new Promise<Record<string, PtzNode>>((resolve, reject) => {
       cam.getNodes((err, n) => (err ? reject(err) : resolve(n)))
     })
+    debugLog('ptz', `PTZ nodes for ${camera.host}`, JSON.stringify(nodes, null, 2))
     const zoom = Object.values(nodes ?? {}).some(
       (node) => node?.supportedPTZSpaces?.continuousZoomVelocitySpace
     )
+    debugLog('ptz', `Capabilities for ${camera.host}: pan=true zoom=${zoom}`)
     return { pan: true, zoom }
-  } catch {
+  } catch (err) {
+    debugLog('ptz', `Capability check failed for ${camera.host}`, String(err))
     return { pan: false, zoom: false }
   }
 }

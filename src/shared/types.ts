@@ -43,10 +43,19 @@ export const IpcChannel = {
   PtzCaps: 'ptz:caps',
   PtzMove: 'ptz:move',
   PtzStop: 'ptz:stop',
-  MenuAction: 'menu:action'
+  MenuAction: 'menu:action',
+  DebugList: 'debug:list',
+  DebugEntry: 'debug:entry'
 } as const
 
-export type MenuAction = 'add-camera' | 'snapshot'
+export type MenuAction = 'add-camera' | 'snapshot' | 'debug-log'
+
+export interface DebugEntry {
+  ts: number
+  scope: string
+  message: string
+  detail?: string
+}
 
 export interface PtzCaps {
   pan: boolean
@@ -67,4 +76,6 @@ export interface OnvifApi {
   ptzStop: (id: string) => Promise<void>
   onStreamStatus: (cb: (state: StreamState) => void) => () => void
   onMenuAction: (cb: (action: MenuAction) => void) => () => void
+  debugEntries: () => Promise<DebugEntry[]>
+  onDebugEntry: (cb: (entry: DebugEntry) => void) => () => void
 }

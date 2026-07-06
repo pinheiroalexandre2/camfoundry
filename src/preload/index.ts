@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IpcChannel } from '@shared/types'
-import type { Camera, MenuAction, OnvifApi, StreamState } from '@shared/types'
+import type { Camera, DebugEntry, MenuAction, OnvifApi, StreamState } from '@shared/types'
 
 const api: OnvifApi = {
   listCameras: () => ipcRenderer.invoke(IpcChannel.CamerasList),
@@ -24,6 +24,12 @@ const api: OnvifApi = {
     const listener = (_e: unknown, action: MenuAction): void => cb(action)
     ipcRenderer.on(IpcChannel.MenuAction, listener)
     return () => ipcRenderer.removeListener(IpcChannel.MenuAction, listener)
+  },
+  debugEntries: () => ipcRenderer.invoke(IpcChannel.DebugList),
+  onDebugEntry: (cb: (entry: DebugEntry) => void) => {
+    const listener = (_e: unknown, entry: DebugEntry): void => cb(entry)
+    ipcRenderer.on(IpcChannel.DebugEntry, listener)
+    return () => ipcRenderer.removeListener(IpcChannel.DebugEntry, listener)
   }
 }
 

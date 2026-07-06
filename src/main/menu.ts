@@ -35,6 +35,8 @@ export function buildAppMenu(): void {
         { role: 'zoomIn' },
         { role: 'zoomOut' },
         { type: 'separator' },
+        { label: 'ONVIF Debug Log', accelerator: 'Alt+CmdOrCtrl+D', click: () => send('debug-log') },
+        { type: 'separator' },
         { role: 'togglefullscreen' }
       ]
     },
