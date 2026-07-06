@@ -15,6 +15,8 @@ const api: OnvifApi = {
   ptzMove: (id: string, x: number, y: number, zoom = 0) =>
     ipcRenderer.invoke(IpcChannel.PtzMove, id, x, y, zoom),
   ptzStop: (id: string) => ipcRenderer.invoke(IpcChannel.PtzStop, id),
+  ptzZoomStep: (id: string, direction: number) =>
+    ipcRenderer.invoke(IpcChannel.PtzZoomStep, id, direction),
   onStreamStatus: (cb: (state: StreamState) => void) => {
     const listener = (_e: unknown, state: StreamState): void => cb(state)
     ipcRenderer.on(IpcChannel.StreamStatus, listener)

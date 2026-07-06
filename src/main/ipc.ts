@@ -5,7 +5,7 @@ import type { Camera } from '@shared/types'
 import type { CameraStorage } from './storage/storage'
 import type { StreamManager } from './streams/streamManager'
 import { discoverCameras } from './onvif/discovery'
-import { forgetPtz, ptzCapabilities, ptzMove, ptzStop } from './onvif/ptz'
+import { forgetPtz, ptzCapabilities, ptzMove, ptzStop, ptzZoomStep } from './onvif/ptz'
 import { captureSnapshot } from './streams/snapshot'
 import { debugEntries } from './debugLog'
 
@@ -75,6 +75,9 @@ export function registerIpcHandlers(store: CameraStorage, streams: StreamManager
     ptzMove(await findCamera(id), x, y, zoom)
   )
   ipcMain.handle(IpcChannel.PtzStop, async (_e, id: string) => ptzStop(await findCamera(id)))
+  ipcMain.handle(IpcChannel.PtzZoomStep, async (_e, id: string, direction: number) =>
+    ptzZoomStep(await findCamera(id), direction)
+  )
 
   ipcMain.handle(IpcChannel.DebugList, () => debugEntries())
 }

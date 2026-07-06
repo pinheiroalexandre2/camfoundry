@@ -34,7 +34,7 @@ export function CameraCard({
   const dragRef = useRef<{ x: number; y: number; sx: number; sy: number } | null>(null)
   const [capturing, setCapturing] = useState(false)
   const [muted, setMuted] = useState(true)
-  const [caps, setCaps] = useState<PtzCaps>({ pan: false, zoom: false })
+  const [caps, setCaps] = useState<PtzCaps>({ pan: false, zoom: 'none' })
   const [digitalZoom, setDigitalZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const status = state?.status ?? 'idle'
@@ -119,7 +119,7 @@ export function CameraCard({
     setDigitalZoom(1)
     setPan({ x: 0, y: 0 })
     if (!focused) {
-      setCaps({ pan: false, zoom: false })
+      setCaps({ pan: false, zoom: 'none' })
       return
     }
     let on = true
@@ -162,7 +162,7 @@ export function CameraCard({
           <PtzControls
             cameraId={camera.id}
             pan={caps.pan}
-            zoomReal={caps.zoom}
+            zoomMode={caps.zoom}
             onDigitalZoom={changeZoom}
           />
         )}

@@ -374,6 +374,17 @@ button.danger:hover {
   grid-area: 2 / 4;
 }
 
+.ptz .ptz-zoom-label {
+  grid-area: 3 / 4;
+  align-self: start;
+  text-align: center;
+  font-size: 10px;
+  color: #fff;
+  background: rgba(28, 31, 38, 0.92);
+  border-radius: 6px;
+  padding: 2px 0;
+}
+
 .ptz-btn {
   display: flex;
   align-items: center;

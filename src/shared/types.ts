@@ -44,6 +44,7 @@ export const IpcChannel = {
   PtzCaps: 'ptz:caps',
   PtzMove: 'ptz:move',
   PtzStop: 'ptz:stop',
+  PtzZoomStep: 'ptz:zoomStep',
   MenuAction: 'menu:action',
   DebugList: 'debug:list',
   DebugEntry: 'debug:entry'
@@ -58,9 +59,12 @@ export interface DebugEntry {
   detail?: string
 }
 
+// 'continuous' and 'relative' drive the lens; 'none' falls back to digital zoom.
+export type PtzZoomMode = 'continuous' | 'relative' | 'none'
+
 export interface PtzCaps {
   pan: boolean
-  zoom: boolean
+  zoom: PtzZoomMode
 }
 
 export interface OnvifApi {
@@ -75,6 +79,7 @@ export interface OnvifApi {
   ptzCaps: (id: string) => Promise<PtzCaps>
   ptzMove: (id: string, x: number, y: number, zoom?: number) => Promise<void>
   ptzStop: (id: string) => Promise<void>
+  ptzZoomStep: (id: string, direction: number) => Promise<void>
   onStreamStatus: (cb: (state: StreamState) => void) => () => void
   onMenuAction: (cb: (action: MenuAction) => void) => () => void
   debugEntries: () => Promise<DebugEntry[]>
