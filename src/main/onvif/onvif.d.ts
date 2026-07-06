@@ -41,6 +41,8 @@ declare module 'onvif' {
   interface ProbeOptions {
     resolve?: boolean
     timeout?: number
+    device?: string
+    listeningPort?: number
   }
 
   export const Discovery: {
@@ -48,5 +50,6 @@ declare module 'onvif' {
       options: ProbeOptions,
       callback: (err: Error | Error[] | null, data: unknown[]) => void
     ): void
+    on(event: 'error', callback: (err: unknown, xml?: string) => void): void
   }
 }
