@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Play } from 'lucide-react'
 import type { Camera, StreamQuality } from '@shared/types'
 import { useCameras } from './hooks/useCameras'
 import { useStreamStatuses } from './hooks/useStreamStatuses'
@@ -61,6 +62,18 @@ export default function App() {
     await window.api.restartStream(camera.id)
   }
 
+  // Single view only streams the focused camera, so starting everything
+  // implies switching back to the grid.
+  const handleStartAll = (): void => {
+    setFocusedId(null)
+    for (const camera of cameras) {
+      const status = statuses[camera.id]?.status
+      if (status !== 'live' && status !== 'connecting') {
+        void window.api.startStream(camera.id)
+      }
+    }
+  }
+
   const cardHandlers = {
     onPlay: (id: string) => window.api.startStream(id),
     onPause: (id: string) => window.api.stopStream(id),
@@ -84,6 +97,9 @@ export default function App() {
             focusedId={focusedId}
             onSelect={setFocusedId}
           />
+          <button className="toggle" onClick={handleStartAll} disabled={cameras.length === 0}>
+            <Play size={14} /> Start all
+          </button>
           <button className="toggle" onClick={() => setModal({})}>
             ＋ Add camera
           </button>

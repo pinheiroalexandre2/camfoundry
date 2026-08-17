@@ -161,6 +161,9 @@ button.danger:hover {
 }
 
 .toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   width: 100%;
   margin-bottom: 12px;
   background: #2a2e37;
