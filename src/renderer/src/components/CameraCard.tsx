@@ -1,6 +1,16 @@
-import { useEffect, useRef, useState, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type DragEvent, type MouseEvent } from 'react'
 import Hls from 'hls.js'
-import { Camera as CameraIcon, Pause, Pencil, Play, RotateCw, Trash2, Volume2, VolumeX } from 'lucide-react'
+import {
+  Camera as CameraIcon,
+  GripVertical,
+  Pause,
+  Pencil,
+  Play,
+  RotateCw,
+  Trash2,
+  Volume2,
+  VolumeX
+} from 'lucide-react'
 import type { Camera, PtzCaps, StreamQuality, StreamState } from '@shared/types'
 import { StatusBadge } from './StatusBadge'
 import { PtzControls } from './PtzControls'
@@ -16,6 +26,8 @@ interface Props {
   onEdit: (camera: Camera) => void
   onQuality: (camera: Camera, quality: StreamQuality) => void
   onSnapshot: (id: string) => Promise<string | null>
+  onReorderDragStart?: (event: DragEvent<HTMLSpanElement>) => void
+  onReorderDragEnd?: () => void
 }
 
 export function CameraCard({
@@ -28,7 +40,9 @@ export function CameraCard({
   onRemove,
   onEdit,
   onQuality,
-  onSnapshot
+  onSnapshot,
+  onReorderDragStart,
+  onReorderDragEnd
 }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const dragRef = useRef<{ x: number; y: number; sx: number; sy: number } | null>(null)
@@ -135,7 +149,20 @@ export function CameraCard({
   return (
     <div className="card">
       <div className="card-header">
-        <span className="card-title">{camera.name}</span>
+        <span className="card-title">
+          {onReorderDragStart && (
+            <span
+              className="drag-handle"
+              title="Drag to reorder"
+              draggable
+              onDragStart={onReorderDragStart}
+              onDragEnd={onReorderDragEnd}
+            >
+              <GripVertical size={14} />
+            </span>
+          )}
+          {camera.name}
+        </span>
         <StatusBadge status={status} />
       </div>
 

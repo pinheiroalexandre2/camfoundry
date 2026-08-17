@@ -44,4 +44,16 @@ export class JsonStore implements CameraStorage {
     await this.write(data)
     return data.cameras
   }
+
+  // Stored order is the display order; unknown ids are ignored and any camera
+  // missing from the list keeps its place at the end.
+  async reorder(ids: string[]): Promise<Camera[]> {
+    const data = await this.read()
+    const byId = new Map(data.cameras.map((c) => [c.id, c]))
+    const ordered = ids.map((id) => byId.get(id)).filter((c): c is Camera => !!c)
+    const rest = data.cameras.filter((c) => !ids.includes(c.id))
+    data.cameras = [...ordered, ...rest]
+    await this.write(data)
+    return data.cameras
+  }
 }
