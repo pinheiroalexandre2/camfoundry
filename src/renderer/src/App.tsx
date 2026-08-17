@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Play } from 'lucide-react'
+import { PanelLeftClose, PanelLeftOpen, Play } from 'lucide-react'
 import type { Camera, StreamQuality } from '@shared/types'
 import { useCameras } from './hooks/useCameras'
 import { useStreamStatuses } from './hooks/useStreamStatuses'
@@ -15,6 +15,7 @@ export default function App() {
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const [modal, setModal] = useState<{ editing?: Camera } | null>(null)
   const [showDebug, setShowDebug] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const camerasRef = useRef(cameras)
   camerasRef.current = cameras
 
@@ -89,21 +90,42 @@ export default function App() {
   return (
     <div className="app">
       <div className="app-main">
-        <aside className="sidebar">
-          <h1>CamFoundry</h1>
-          <CameraList
-            cameras={cameras}
-            statuses={statuses}
-            focusedId={focusedId}
-            onSelect={setFocusedId}
-          />
-          <button className="toggle" onClick={handleStartAll} disabled={cameras.length === 0}>
-            <Play size={14} /> Start all
-          </button>
-          <button className="toggle" onClick={() => setModal({})}>
-            ＋ Add camera
-          </button>
-        </aside>
+        {sidebarOpen ? (
+          <aside className="sidebar">
+            <div className="sidebar-header">
+              <h1>CamFoundry</h1>
+              <button
+                className="icon-btn"
+                title="Collapse sidebar"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <PanelLeftClose size={16} />
+              </button>
+            </div>
+            <CameraList
+              cameras={cameras}
+              statuses={statuses}
+              focusedId={focusedId}
+              onSelect={setFocusedId}
+            />
+            <button className="toggle" onClick={handleStartAll} disabled={cameras.length === 0}>
+              <Play size={14} /> Start all
+            </button>
+            <button className="toggle" onClick={() => setModal({})}>
+              ＋ Add camera
+            </button>
+          </aside>
+        ) : (
+          <div className="sidebar-rail">
+            <button
+              className="icon-btn"
+              title="Expand sidebar"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <PanelLeftOpen size={16} />
+            </button>
+          </div>
+        )}
 
         <main className="content">
           {focused ? (
