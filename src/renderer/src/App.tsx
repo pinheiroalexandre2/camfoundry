@@ -6,12 +6,14 @@ import { CameraGrid } from './components/CameraGrid'
 import { CameraList } from './components/CameraList'
 import { CameraCard } from './components/CameraCard'
 import { AddCameraModal } from './components/AddCameraModal'
+import { DebugPanel } from './components/DebugPanel'
 
 export default function App() {
   const { cameras, save, remove } = useCameras()
   const statuses = useStreamStatuses()
   const [focusedId, setFocusedId] = useState<string | null>(null)
-  const [showAdd, setShowAdd] = useState(false)
+  const [modal, setModal] = useState<{ editing?: Camera } | null>(null)
+  const [showDebug, setShowDebug] = useState(false)
   const camerasRef = useRef(cameras)
   camerasRef.current = cameras
 
@@ -21,7 +23,8 @@ export default function App() {
   // Native menu items dispatch here so they reuse the same in-app actions.
   useEffect(() => {
     return window.api.onMenuAction((action) => {
-      if (action === 'add-camera') setShowAdd(true)
+      if (action === 'add-camera') setModal({})
+      else if (action === 'debug-log') setShowDebug((prev) => !prev)
       else if (action === 'snapshot' && focusedIdRef.current) {
         window.api.snapshot(focusedIdRef.current)
       }
@@ -37,14 +40,15 @@ export default function App() {
     }
   }, [focusedId])
 
+  // Save errors propagate to the form so the modal stays open and shows them.
   const handleSave = async (camera: Camera): Promise<void> => {
-    const existing = cameras.find(
-      (c) =>
-        (camera.host && c.host === camera.host) || (camera.rtspUrl && c.rtspUrl === camera.rtspUrl)
-    )
-    await save(existing ? { ...camera, id: existing.id } : camera)
-    setShowAdd(false)
-    if (existing && focusedId === existing.id) await window.api.restartStream(existing.id)
+    const isEdit = cameras.some((c) => c.id === camera.id)
+    await save(camera)
+    setModal(null)
+    const status = statuses[camera.id]?.status
+    if (isEdit && (status === 'live' || status === 'connecting')) {
+      await window.api.restartStream(camera.id)
+    }
   }
 
   const handleRemove = async (id: string): Promise<void> => {
@@ -62,6 +66,7 @@ export default function App() {
     onPause: (id: string) => window.api.stopStream(id),
     onRestart: (id: string) => window.api.restartStream(id),
     onRemove: handleRemove,
+    onEdit: (camera: Camera) => setModal({ editing: camera }),
     onQuality: handleQuality,
     onSnapshot: (id: string) => window.api.snapshot(id)
   }
@@ -70,30 +75,36 @@ export default function App() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
-        <h1>CamFoundry</h1>
-        <CameraList
-          cameras={cameras}
-          statuses={statuses}
-          focusedId={focusedId}
-          onSelect={setFocusedId}
-        />
-        <button className="toggle" onClick={() => setShowAdd(true)}>
-          ＋ Add camera
-        </button>
-      </aside>
+      <div className="app-main">
+        <aside className="sidebar">
+          <h1>CamFoundry</h1>
+          <CameraList
+            cameras={cameras}
+            statuses={statuses}
+            focusedId={focusedId}
+            onSelect={setFocusedId}
+          />
+          <button className="toggle" onClick={() => setModal({})}>
+            ＋ Add camera
+          </button>
+        </aside>
 
-      <main className="content">
-        {focused ? (
-          <div className="single">
-            <CameraCard camera={focused} state={statuses[focused.id]} focused {...cardHandlers} />
-          </div>
-        ) : (
-          <CameraGrid cameras={cameras} statuses={statuses} {...cardHandlers} />
-        )}
-      </main>
+        <main className="content">
+          {focused ? (
+            <div className="single">
+              <CameraCard camera={focused} state={statuses[focused.id]} focused {...cardHandlers} />
+            </div>
+          ) : (
+            <CameraGrid cameras={cameras} statuses={statuses} {...cardHandlers} />
+          )}
+        </main>
+      </div>
 
-      {showAdd && <AddCameraModal onClose={() => setShowAdd(false)} onSave={handleSave} />}
+      {showDebug && <DebugPanel onClose={() => setShowDebug(false)} />}
+
+      {modal && (
+        <AddCameraModal editing={modal.editing} onClose={() => setModal(null)} onSave={handleSave} />
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import Hls from 'hls.js'
-import { Camera as CameraIcon, Pause, Play, RotateCw, Trash2, Volume2, VolumeX } from 'lucide-react'
+import { Camera as CameraIcon, Pause, Pencil, Play, RotateCw, Trash2, Volume2, VolumeX } from 'lucide-react'
 import type { Camera, PtzCaps, StreamQuality, StreamState } from '@shared/types'
 import { StatusBadge } from './StatusBadge'
 import { PtzControls } from './PtzControls'
@@ -13,6 +13,7 @@ interface Props {
   onPause: (id: string) => void
   onRestart: (id: string) => void
   onRemove: (id: string) => void
+  onEdit: (camera: Camera) => void
   onQuality: (camera: Camera, quality: StreamQuality) => void
   onSnapshot: (id: string) => Promise<string | null>
 }
@@ -25,6 +26,7 @@ export function CameraCard({
   onPause,
   onRestart,
   onRemove,
+  onEdit,
   onQuality,
   onSnapshot
 }: Props) {
@@ -32,7 +34,7 @@ export function CameraCard({
   const dragRef = useRef<{ x: number; y: number; sx: number; sy: number } | null>(null)
   const [capturing, setCapturing] = useState(false)
   const [muted, setMuted] = useState(true)
-  const [caps, setCaps] = useState<PtzCaps>({ pan: false, zoom: false })
+  const [caps, setCaps] = useState<PtzCaps>({ pan: false, zoom: 'none' })
   const [digitalZoom, setDigitalZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const status = state?.status ?? 'idle'
@@ -117,7 +119,7 @@ export function CameraCard({
     setDigitalZoom(1)
     setPan({ x: 0, y: 0 })
     if (!focused) {
-      setCaps({ pan: false, zoom: false })
+      setCaps({ pan: false, zoom: 'none' })
       return
     }
     let on = true
@@ -160,7 +162,7 @@ export function CameraCard({
           <PtzControls
             cameraId={camera.id}
             pan={caps.pan}
-            zoomReal={caps.zoom}
+            zoomMode={caps.zoom}
             onDigitalZoom={changeZoom}
           />
         )}
@@ -202,6 +204,9 @@ export function CameraCard({
               <Play size={16} />
             </button>
           )}
+          <button className="icon-btn" title="Edit" onClick={() => onEdit(camera)}>
+            <Pencil size={16} />
+          </button>
           <button
             className="icon-btn danger"
             title="Remove"

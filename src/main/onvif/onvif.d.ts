@@ -6,6 +6,8 @@ declare module 'onvif' {
     port?: number
     path?: string
     timeout?: number
+    useSecure?: boolean
+    secureOpts?: { rejectUnauthorized?: boolean }
   }
 
   export class Cam {
@@ -23,8 +25,21 @@ declare module 'onvif' {
     getNodes(
       callback: (
         err: Error | null,
-        nodes: Record<string, { supportedPTZSpaces?: { continuousZoomVelocitySpace?: unknown } }>
+        nodes: Record<
+          string,
+          {
+            supportedPTZSpaces?: {
+              continuousZoomVelocitySpace?: unknown
+              relativeZoomTranslationSpace?: unknown
+              absoluteZoomPositionSpace?: unknown
+            }
+          }
+        >
       ) => void
+    ): void
+    relativeMove(
+      options: { x?: number; y?: number; zoom?: number },
+      callback: (err: Error | null) => void
     ): void
     getStreamUri(
       options: { protocol?: string; stream?: string; profileToken?: string },
@@ -41,6 +56,8 @@ declare module 'onvif' {
   interface ProbeOptions {
     resolve?: boolean
     timeout?: number
+    device?: string
+    listeningPort?: number
   }
 
   export const Discovery: {
@@ -48,5 +65,6 @@ declare module 'onvif' {
       options: ProbeOptions,
       callback: (err: Error | Error[] | null, data: unknown[]) => void
     ): void
+    on(event: 'error', callback: (err: unknown, xml?: string) => void): void
   }
 }

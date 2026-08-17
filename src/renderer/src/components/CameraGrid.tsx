@@ -15,6 +15,7 @@ interface Props {
   onPause: (id: string) => void
   onRestart: (id: string) => void
   onRemove: (id: string) => void
+  onEdit: (camera: Camera) => void
   onQuality: (camera: Camera, quality: StreamQuality) => void
   onSnapshot: (id: string) => Promise<string | null>
 }
@@ -26,6 +27,7 @@ export function CameraGrid({
   onPause,
   onRestart,
   onRemove,
+  onEdit,
   onQuality,
   onSnapshot
 }: Props) {
@@ -47,6 +49,7 @@ export function CameraGrid({
           onPause={onPause}
           onRestart={onRestart}
           onRemove={onRemove}
+          onEdit={onEdit}
           onQuality={onQuality}
           onSnapshot={onSnapshot}
         />
