@@ -66,7 +66,12 @@ export default function App() {
   // implies switching back to the grid.
   const handleStartAll = (): void => {
     setFocusedId(null)
-    for (const camera of cameras) window.api.startStream(camera.id)
+    for (const camera of cameras) {
+      const status = statuses[camera.id]?.status
+      if (status !== 'live' && status !== 'connecting') {
+        void window.api.startStream(camera.id)
+      }
+    }
   }
 
   const cardHandlers = {
