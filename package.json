@@ -1,6 +1,6 @@
 {
   "name": "camfoundry",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "Desktop app to discover and view local ONVIF and RTSP cameras",
   "author": {
     "name": "Alexandre Pinheiro",
