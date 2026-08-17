@@ -316,8 +316,31 @@ button.danger:hover {
 }
 
 .card-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 600;
   font-size: 14px;
+}
+
+.drag-handle {
+  display: inline-flex;
+  color: #8b919b;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.grid-item.dragging {
+  opacity: 0.4;
+}
+
+.grid-item.drag-over {
+  outline: 2px dashed #3b82f6;
+  outline-offset: 3px;
+  border-radius: 8px;
 }
 
 .card-video {

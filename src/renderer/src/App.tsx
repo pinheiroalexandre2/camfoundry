@@ -10,7 +10,7 @@ import { AddCameraModal } from './components/AddCameraModal'
 import { DebugPanel } from './components/DebugPanel'
 
 export default function App() {
-  const { cameras, save, remove } = useCameras()
+  const { cameras, save, remove, reorder } = useCameras()
   const statuses = useStreamStatuses()
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const [modal, setModal] = useState<{ editing?: Camera } | null>(null)
@@ -133,7 +133,12 @@ export default function App() {
               <CameraCard camera={focused} state={statuses[focused.id]} focused {...cardHandlers} />
             </div>
           ) : (
-            <CameraGrid cameras={cameras} statuses={statuses} {...cardHandlers} />
+            <CameraGrid
+              cameras={cameras}
+              statuses={statuses}
+              onReorder={reorder}
+              {...cardHandlers}
+            />
           )}
         </main>
       </div>

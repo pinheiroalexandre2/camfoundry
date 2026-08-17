@@ -35,6 +35,7 @@ export const IpcChannel = {
   CamerasList: 'cameras:list',
   CamerasSave: 'cameras:save',
   CamerasDelete: 'cameras:delete',
+  CamerasReorder: 'cameras:reorder',
   Discover: 'onvif:discover',
   StreamStart: 'stream:start',
   StreamStop: 'stream:stop',
@@ -71,6 +72,7 @@ export interface OnvifApi {
   listCameras: () => Promise<Camera[]>
   saveCamera: (camera: Camera) => Promise<Camera[]>
   deleteCamera: (id: string) => Promise<Camera[]>
+  reorderCameras: (ids: string[]) => Promise<Camera[]>
   discover: () => Promise<DiscoveredCamera[]>
   startStream: (id: string) => Promise<StreamState>
   stopStream: (id: string) => Promise<void>

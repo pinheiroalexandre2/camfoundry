@@ -6,6 +6,7 @@ const api: OnvifApi = {
   listCameras: () => ipcRenderer.invoke(IpcChannel.CamerasList),
   saveCamera: (camera: Camera) => ipcRenderer.invoke(IpcChannel.CamerasSave, camera),
   deleteCamera: (id: string) => ipcRenderer.invoke(IpcChannel.CamerasDelete, id),
+  reorderCameras: (ids: string[]) => ipcRenderer.invoke(IpcChannel.CamerasReorder, ids),
   discover: () => ipcRenderer.invoke(IpcChannel.Discover),
   startStream: (id: string) => ipcRenderer.invoke(IpcChannel.StreamStart, id),
   stopStream: (id: string) => ipcRenderer.invoke(IpcChannel.StreamStop, id),

@@ -21,5 +21,9 @@ export function useCameras() {
     setCameras(await window.api.deleteCamera(id))
   }, [])
 
-  return { cameras, reload, save, remove }
+  const reorder = useCallback(async (ids: string[]) => {
+    setCameras(await window.api.reorderCameras(ids))
+  }, [])
+
+  return { cameras, reload, save, remove, reorder }
 }

@@ -37,6 +37,7 @@ export function registerIpcHandlers(store: CameraStorage, streams: StreamManager
     return store.save(camera)
   })
   ipcMain.handle(IpcChannel.CamerasDelete, (_e, id: string) => store.delete(id))
+  ipcMain.handle(IpcChannel.CamerasReorder, (_e, ids: string[]) => store.reorder(ids))
 
   ipcMain.handle(IpcChannel.Discover, () => discoverCameras())
 
