@@ -34,14 +34,10 @@ export function CameraGrid({
   onSnapshot,
   onReorder
 }: Props) {
-  // A tile only becomes draggable while its grip handle is held, so dragging
-  // never competes with the card buttons or the digital-zoom pan.
-  const [armedId, setArmedId] = useState<string | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
 
   const endDrag = (): void => {
-    setArmedId(null)
     setDragId(null)
     setOverId(null)
   }
@@ -74,12 +70,6 @@ export function CameraGrid({
           className={`grid-item${dragId === camera.id ? ' dragging' : ''}${
             overId === camera.id ? ' drag-over' : ''
           }`}
-          draggable={armedId === camera.id}
-          onDragStart={(e) => {
-            e.dataTransfer.effectAllowed = 'move'
-            setDragId(camera.id)
-          }}
-          onDragEnd={endDrag}
           onDragOver={(e) => {
             if (!dragId) return
             e.preventDefault()
@@ -101,7 +91,12 @@ export function CameraGrid({
             onEdit={onEdit}
             onQuality={onQuality}
             onSnapshot={onSnapshot}
-            onDragHandleDown={() => setArmedId(camera.id)}
+            onReorderDragStart={(e) => {
+              e.dataTransfer.effectAllowed = 'move'
+              e.dataTransfer.setData('text/plain', camera.id)
+              setDragId(camera.id)
+            }}
+            onReorderDragEnd={endDrag}
           />
         </div>
       ))}

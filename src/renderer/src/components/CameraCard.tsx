@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type DragEvent, type MouseEvent } from 'react'
 import Hls from 'hls.js'
 import {
   Camera as CameraIcon,
@@ -26,8 +26,8 @@ interface Props {
   onEdit: (camera: Camera) => void
   onQuality: (camera: Camera, quality: StreamQuality) => void
   onSnapshot: (id: string) => Promise<string | null>
-  // Present only in the grid, where tiles can be reordered.
-  onDragHandleDown?: () => void
+  onReorderDragStart?: (event: DragEvent<HTMLSpanElement>) => void
+  onReorderDragEnd?: () => void
 }
 
 export function CameraCard({
@@ -41,7 +41,8 @@ export function CameraCard({
   onEdit,
   onQuality,
   onSnapshot,
-  onDragHandleDown
+  onReorderDragStart,
+  onReorderDragEnd
 }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const dragRef = useRef<{ x: number; y: number; sx: number; sy: number } | null>(null)
@@ -149,8 +150,14 @@ export function CameraCard({
     <div className="card">
       <div className="card-header">
         <span className="card-title">
-          {onDragHandleDown && (
-            <span className="drag-handle" title="Drag to reorder" onMouseDown={onDragHandleDown}>
+          {onReorderDragStart && (
+            <span
+              className="drag-handle"
+              title="Drag to reorder"
+              draggable
+              onDragStart={onReorderDragStart}
+              onDragEnd={onReorderDragEnd}
+            >
               <GripVertical size={14} />
             </span>
           )}
